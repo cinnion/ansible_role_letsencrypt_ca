@@ -3,6 +3,18 @@
 - name: Include OS-specific variables.
   include_vars: "{{ ansible_os_family }}.yml"
 
+- name: Get latest CA files
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ role_files_dir }}"
+  delegate_to: localhost
+  run_once: true
+  loop:
+    - https://letsencrypt.org/certs/isrgrootx1.der
+    - https://letsencrypt.org/certs/isrg-root-x2-cross-signed.der
+    - https://letsencrypt.org/certs/gen-y/root-ye.der
+    - https://letsencrypt.org/certs/gen-y/root-yr.der
+
 - name: Copy CA files to the system
   copy:
     src: files/
@@ -15,3 +27,20 @@
 
 - name: update bundles
   command: "{{ca_update_command}}"
+
+- name: Cleanup our downloaded certificates to leave things clean.
+  find:
+    paths: "{{ role_files_dir }}"
+    file_type: file
+    hidden: no
+    recurse: no
+  register: files_to_delete
+  delegate_to: localhost
+  run_once: true
+
+- file:
+    path: "{{ item.path }}"
+    state: absent
+  delegate_to: localhost
+  run_once: true
+  loop: "{{ files_to_delete.files }}"
