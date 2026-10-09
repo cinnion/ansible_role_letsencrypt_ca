@@ -1,3 +1,26 @@
 # SPDX-License-Identifier: BSD-3-Clause
 ---
 # defaults file for letsencrypt_ca
+
+# A list of the certificates to download and install on the target server.
+letsencrypt_ca_root_certificate_urls:
+    - https://letsencrypt.org/certs/isrgrootx1.pem
+    - https://letsencrypt.org/certs/isrg-root-x1-cross-signed.pem
+    - https://letsencrypt.org/certs/isrg-root-x2.pem
+    - https://letsencrypt.org/certs/gen-y/root-x2-by-x1.pem
+    - https://letsencrypt.org/certs/gen-y/root-ye.pem
+    - https://letsencrypt.org/certs/gen-y/root-ye-by-x2.pem
+    - https://letsencrypt.org/certs/gen-y/root-yr.pem
+    - https://letsencrypt.org/certs/gen-y/root-yr-by-x1.pem
+    - https://letsencrypt.org/certs/gen-y/int-ye1.pem
+    - https://letsencrypt.org/certs/gen-y/int-ye2.pem
+    - https://letsencrypt.org/certs/gen-y/int-yr1.pem
+    - https://letsencrypt.org/certs/gen-y/int-yr2.pem
+
+# Local Variables:
+# mode: yaml
+# yaml-indent-offset: 4
+# indent-tabs-mode: nil
+# truncate-lines: t
+# eval: (add-hook 'before-save-hook #'delete-trailing-whitespace nil t)
+# End:

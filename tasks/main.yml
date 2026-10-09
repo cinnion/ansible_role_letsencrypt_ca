@@ -1,3 +1,48 @@
 # SPDX-License-Identifier: BSD-3-Clause
 ---
 # tasks file for letsencrypt_ca
+# Include variables and define needed variables.
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_facts.os_family }}.yml"
+
+- name: Check to see if this role has a .git directory.
+  ansible.builtin.stat:
+    path: "{{ role_path }}/.git"
+  register: git_dir_check
+  delegate_to: localhost
+  run_once: true
+
+- name: Get root certificate PEM files.
+  ansible.builtin.get_url:
+    url: "{{ item }}"
+    dest: "{{ role_path }}/files/"
+  delegate_to: localhost
+  run_once: true
+  register: updated_certificates
+  loop: "{{ letsencrypt_ca_root_certificate_urls }}"
+
+# yamllint disable rule:line-length
+- name: Commit changes to the repostory files to our role git instance.
+  shell: |
+      git add "{{ role_path ~ '/files/*' }}"
+      git commit -m "Auto-update root certificate files: {{ ansible_date_time.iso8601 }}"
+  args:
+    chdir: "{{ role_path }}"
+  delegate_to: localhost
+  when:
+    - updated_certificates.changed
+    - git_dir_check.stat.exists
+    - git_dir_check.stat.isdir
+
+- name: Copy CA files to the system
+  copy:
+    src: "{{ item }}"
+    dest: "{{ letsencrypt_ca_trusted_dir }}/letsencrypt-{{ item | basename }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_fileglob:
+    - "files/*"
+  notify:
+    - update bundles
+    - restart sssd
