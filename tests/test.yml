@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: BSD-3-Clause
+---
+- name: Test for letsencrypt_ca
+  hosts: localhost
+  remote_user: root
+  roles:
+    - letsencrypt_ca
